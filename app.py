@@ -8,7 +8,6 @@ st.set_page_config(page_title="찰칵 중국어", page_icon="📚")
 st.title("📸 찰칵 중국어")
 st.write("책 페이지 사진을 업로드하면 중국어 학습 자료를 만들어드려요!")
 
-# --- 파일 업로드 ---
 uploaded_file = st.file_uploader("책 페이지 사진을 선택하세요", type=["jpg", "jpeg", "png", "JPEG", "JPG", "PNG"])
 
 if uploaded_file is not None:
@@ -40,14 +39,3 @@ if uploaded_file is not None:
     
     if os.path.exists("temp_image.jpg"):
         os.remove("temp_image.jpg")
-
-# --- 텍스트 직접 입력 (OCR이 어려울 때) ---
-with st.expander("✍️ 텍스트 직접 입력 (OCR이 어려울 때)"):
-    manual_text = st.text_area("중국어 텍스트를 직접 붙여넣으세요")
-    if st.button("직접 입력한 텍스트로 학습 자료 생성"):
-        if manual_text.strip():
-            with st.spinner("🧠 DeepSeek이 학습 자료를 생성하는 중..."):
-                study_material = generate_study_material(manual_text)
-                st.markdown(study_material)
-        else:
-            st.warning("텍스트를 입력해주세요.")
