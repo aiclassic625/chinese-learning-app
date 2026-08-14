@@ -6,26 +6,37 @@ from study_helper import generate_study_material
 
 st.set_page_config(page_title="찰칵 중국어", page_icon="📚")
 st.title("📸 찰칵 중국어")
-st.write("갤러리에서 책 페이지 사진을 선택하면 중국어 학습 자료를 만들어드려요!")
+st.write("책 페이지를 찍거나 갤러리에서 선택하면 중국어 학습 자료를 만들어드려요!")
 
-# 파일 업로드
-uploaded_file = st.file_uploader("갤러리에서 사진을 선택하세요", type=["jpg", "jpeg", "png"])
+# --- 세션 초기화 ---
+if "uploaded_file" not in st.session_state:
+    st.session_state.uploaded_file = None
 
-if uploaded_file is not None:
-    # 이미지 미리보기
-    image = Image.open(uploaded_file)
+# --- 탭 구성 ---
+tab1, tab2 = st.tabs(["📁 파일 업로드", "📸 카메라 촬영"])
+
+with tab1:
+    uploaded = st.file_uploader("갤러리에서 사진을 선택하세요", type=["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"])
+    if uploaded is not None:
+        st.session_state.uploaded_file = uploaded
+
+with tab2:
+    uploaded = st.camera_input("📸 책 페이지를 카메라로 찍어주세요")
+    if uploaded is not None:
+        st.session_state.uploaded_file = uploaded
+
+# --- 이미지 처리 ---
+if st.session_state.uploaded_file is not None:
+    with open("temp_image.jpg", "wb") as f:
+        f.write(st.session_state.uploaded_file.getbuffer())
+    
+    image = Image.open(st.session_state.uploaded_file)
     st.image(image, caption="업로드된 이미지", use_container_width=True)
     
     if st.button("🚀 학습 자료 생성하기"):
-        # 1. 임시 파일로 저장
-        with open("temp_image.jpg", "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        
-        # 2. OCR로 텍스트 추출
         with st.spinner("📖 이미지에서 텍스트를 추출하는 중..."):
             extracted_text = extract_text_from_image("temp_image.jpg")
         
-        # 3. OCR 결과 확인
         if "오류" in extracted_text:
             st.error(f"OCR 오류: {extracted_text}")
         else:
@@ -33,7 +44,6 @@ if uploaded_file is not None:
             with st.expander("📝 추출된 텍스트 보기"):
                 st.write(extracted_text)
             
-            # 4. DeepSeek으로 학습 자료 생성
             with st.spinner("🧠 DeepSeek이 학습 자료를 생성하는 중..."):
                 study_material = generate_study_material(extracted_text)
             
@@ -42,7 +52,6 @@ if uploaded_file is not None:
             else:
                 st.success("🎉 학습 자료 생성 완료!")
                 st.markdown(study_material)
-        
-        # 임시 파일 정리
-        if os.path.exists("temp_image.jpg"):
-            os.remove("temp_image.jpg")
+    
+    if os.path.exists("temp_image.jpg"):
+        os.remove("temp_image.jpg")
