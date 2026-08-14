@@ -1,18 +1,20 @@
 from openai import OpenAI
+import streamlit as st
 
-# DeepSeek 클라이언트
+# 🔥 API 키를 secrets에서 안전하게 불러옵니다!
 client = OpenAI(
-    api_key="sk-9d2da94df409489c8cfd3673b509665b",
+    api_key=st.secrets["DEEPSEEK_API_KEY"],
     base_url="https://api.deepseek.com/v1"
 )
 
 def generate_study_material(chinese_text):
-    try:
-        # 텍스트가 비어있으면 오류 반환
-        if not chinese_text or len(chinese_text.strip()) < 5:
-            return "텍스트가 너무 짧습니다. 다시 시도해주세요."
+    """
+    중국어 텍스트를 받아서 문장별로 학습 자료를 생성하는 함수
+    """
+    if not chinese_text or len(chinese_text.strip()) < 5:
+        return "텍스트가 너무 짧습니다. 다시 시도해주세요."
 
-        prompt = f"""
+    prompt = f"""
 다음 중국어 텍스트를 분석해주세요:
 
 {chinese_text}
@@ -21,6 +23,7 @@ def generate_study_material(chinese_text):
 단어 분석도 포함해주세요.
 """
 
+    try:
         response = client.chat.completions.create(
             model="deepseek-v4-flash",
             messages=[
