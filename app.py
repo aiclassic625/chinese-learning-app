@@ -8,7 +8,10 @@ st.set_page_config(page_title="찰칵 중국어", page_icon="📚")
 st.title("📸 찰칵 중국어")
 st.write("책 페이지 사진을 업로드하면 중국어 학습 자료를 만들어드려요!")
 
-# --- 파일 업로드만 (카메라 제거) ---
+# --- 사이드바에 글자 크기 조절 추가 ---
+font_size = st.sidebar.slider("📏 글자 크기", 12, 30, 18)
+
+# --- 파일 업로드 ---
 uploaded_file = st.file_uploader("갤러리에서 사진을 선택하세요", type=["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"])
 
 if uploaded_file is not None:
@@ -36,7 +39,13 @@ if uploaded_file is not None:
                 st.error(f"학습 자료 생성 오류: {study_material}")
             else:
                 st.success("🎉 학습 자료 생성 완료!")
-                st.markdown(study_material)
+                
+                # 🔥 여기가 핵심! 글자 크기 조절 + 배경 추가
+                st.markdown(f"""
+                <div style="font-size: {font_size}px; line-height: 2.0; background-color: #f9f9f9; padding: 20px; border-radius: 10px;">
+                {study_material}
+                </div>
+                """, unsafe_allow_html=True)
     
     if os.path.exists("temp_image.jpg"):
         os.remove("temp_image.jpg")
