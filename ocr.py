@@ -1,23 +1,46 @@
-import pytesseract
-from PIL import Image, ImageEnhance, ImageFilter
+import requests
+from PIL import Image
+import io
 
 def extract_text_from_image(image_path):
     try:
-        image = Image.open(image_path)
+        # 사용자의 API 키를 여기에 넣으세요
+        api_key = "AIzaSyApHgEC3TuAxV3L-voiI_GYNqSeXq4Yexw"
         
-        # --- 전처리 (인식률 200% 향상) ---
-        image = image.convert('L')  # 흑백
-        enhancer = ImageEnhance.Contrast(image)
-        image = enhancer.enhance(3.0)  # 대비 3배
-        image = image.filter(ImageFilter.SHARPEN)  # 선명화
-        image = image.resize((image.width * 2, image.height * 2), Image.LANCZOS)  # 2배 확대
+        # 이미지를 base64로 인코딩
+        with open(image_path, "rb") as image_file:
+            image_content = image_file.read()
         
-        # --- Tesseract 실행 (중국어 간체 집중) ---
-        custom_config = r'--oem 3 --psm 6 -l chi_sim'
-        text = pytesseract.image_to_string(image, config=custom_config)
+        # Vision API 요청 URL
+        url = f"https://vision.googleapis.com/v1/images:annotate?key={api_key}"
         
-        if not text.strip():
-            return "텍스트를 찾을 수 없습니다."
-        return text.strip()
+        # 요청 바디 구성
+        payload = {
+            "requests": [
+                {
+                    "image": {
+                        "content": image_content.decode("latin-1")
+                    },
+                    "features": [
+                        {
+                            "type": "TEXT_DETECTION"
+                        }
+                    ]
+                }
+            ]
+        }
+        
+        # API 호출
+        response = requests.post(url, json=payload)
+        result = response.json()
+        
+        # 텍스트 추출
+        if "responses" in result and result["responses"]:
+            text_annotations = result["responses"][0].get("textAnnotations", [])
+            if text_annotations:
+                return text_annotations[0]["description"].strip()
+        
+        return "텍스트를 찾을 수 없습니다."
+    
     except Exception as e:
         return f"OCR 오류: {e}"
