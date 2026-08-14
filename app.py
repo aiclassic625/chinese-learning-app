@@ -24,10 +24,14 @@ if uploaded_file is not None:
     with open("temp_image.jpg", "wb") as f:
         f.write(uploaded_file.getbuffer())
     
-    # 2. 이미지 미리보기
+        # 2. 이미지 미리보기 표시 및 크기 줄이기 (속도 개선!)
     image = Image.open(uploaded_file)
-    st.image(image, caption="업로드된 이미지", use_container_width=True)
     
+    # 🔥 여기가 핵심입니다! 이미지 크기를 1200px 이하로 줄여서 OCR 속도를 확 올립니다.
+    max_size = (1200, 1200)
+    image.thumbnail(max_size, Image.Resampling.LANCZOS)
+    
+    st.image(image, caption="업로드된 이미지 (크기 축소됨)", use_container_width=True)
     # 3. 학습 자료 생성 버튼
     if st.button("🚀 학습 자료 생성하기"):
         with st.spinner("📖 이미지에서 텍스트를 추출하는 중..."):
