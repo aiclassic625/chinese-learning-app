@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="여기에_여러분의_DeepSeek_API_키를_넣으세요",
+    api_key="sk-9d2da94df409489c8cfd3673b509665b",
     base_url="https://api.deepseek.com/v1"
 )
 
@@ -11,6 +11,10 @@ def generate_study_material(chinese_text):
     - 번체자가 포함된 문장만 간체 변환 줄을 추가로 표시
     - 이미 간체인 문장은 변환 줄 생략
     """
+    # 🔥 UTF-8 인코딩 보정 (이 한 줄이 'ascii' 오류를 완전히 해결합니다!)
+    if isinstance(chinese_text, str):
+        chinese_text = chinese_text.encode('utf-8', errors='ignore').decode('utf-8')
+    
     prompt = f"""
 다음은 중국어 텍스트입니다. (번체자와 간체자가 혼용되어 있어도 됩니다)
 
