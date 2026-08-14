@@ -26,7 +26,7 @@ def extract_text_from_image(image_path):
         
         # 3. Tesseract 실행 (중국어 간체 + 영어 동시 인식)
         #    --psm 6: 페이지에 하나의 텍스트 블록이 있다고 가정 (책 페이지에 최적)
-        custom_config = r'--oem 3 --psm 6 -l chi_sim+eng'
+        custom_config = r'--oem 3 --psm 6 -l chi_sim'
         text = pytesseract.image_to_string(image, config=custom_config)
         
         # 4. 결과 정리
