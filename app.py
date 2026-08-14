@@ -2,7 +2,7 @@ import streamlit as st
 from PIL import Image
 import os
 from ocr import extract_text_from_image
-from study_helper import generate_study_material
+from study_helper import generate_study_material, generate_study_material_stream  # ← 추가!
 
 st.set_page_config(page_title="찰칵 중국어", page_icon="📚")
 st.title("📸 찰칵 중국어")
@@ -28,14 +28,10 @@ if uploaded_file is not None:
             with st.expander("📝 추출된 텍스트 보기"):
                 st.write(extracted_text)
             
+            # 🔥 스트리밍 방식으로 출력 (글자가 차차 나타남)
             with st.spinner("🧠 DeepSeek이 학습 자료를 생성하는 중... (최대 30초)"):
-                study_material = generate_study_material(extracted_text)
-            
-            if "오류" in study_material:
-                st.error(f"학습 자료 생성 오류: {study_material}")
-            else:
-                st.success("🎉 학습 자료 생성 완료!")
-                st.markdown(study_material)
+                response_stream = generate_study_material_stream(extracted_text)
+                st.write_stream(response_stream)
     
     if os.path.exists("temp_image.jpg"):
         os.remove("temp_image.jpg")
