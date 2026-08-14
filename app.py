@@ -34,7 +34,7 @@ if uploaded_file is not None:
                 
                 from openai import OpenAI
                 client = OpenAI(
-                    api_key="여기에_여러분의_DeepSeek_API_키를_넣으세요",
+                    api_key="sk-9d2da94df409489c8cfd3673b509665b",
                     base_url="https://api.deepseek.com/v1"
                 )
                 
