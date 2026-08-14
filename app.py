@@ -14,8 +14,7 @@ tab1, tab2 = st.tabs(["📁 파일 업로드", "📸 카메라 촬영"])
 uploaded_file = None
 
 with tab1:
-    uploaded_file = st.file_uploader("갤러리에서 사진을 선택하세요", type=["jpg", "jpeg", "png"])
-
+    uploaded_file = st.file_uploader("갤러리에서 사진을 선택하세요", type=["jpg", "jpeg", "png", "JPEG", "JPG", "PNG"])
 with tab2:
     uploaded_file = st.camera_input("📸 책 페이지를 카메라로 찍어주세요")
 
