@@ -6,19 +6,31 @@ from study_helper import generate_study_material
 
 st.set_page_config(page_title="찰칵 중국어", page_icon="📚")
 st.title("📸 찰칵 중국어")
-st.write("책 페이지 사진을 업로드하면 중국어 학습 자료를 만들어드려요!")
+st.write("책 페이지를 찍거나 갤러리에서 선택하면 중국어 학습 자료를 만들어드려요!")
 
-# --- 사이드바에 글자 크기 조절 추가 ---
-font_size = st.sidebar.slider("📏 글자 크기", 12, 30, 18)
+# --- 세션 상태 초기화 ---
+if "uploaded_file" not in st.session_state:
+    st.session_state.uploaded_file = None
 
-# --- 파일 업로드 ---
-uploaded_file = st.file_uploader("갤러리에서 사진을 선택하세요", type=["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"])
+# --- 탭 구성 ---
+tab1, tab2 = st.tabs(["📁 파일 업로드", "📸 카메라 촬영"])
 
-if uploaded_file is not None:
+with tab1:
+    uploaded = st.file_uploader("갤러리에서 사진을 선택하세요", type=["jpg", "jpeg", "png", "JPEG", "JPG", "PNG"])
+    if uploaded is not None:
+        st.session_state.uploaded_file = uploaded
+
+with tab2:
+    uploaded = st.camera_input("📸 책 페이지를 카메라로 찍어주세요")
+    if uploaded is not None:
+        st.session_state.uploaded_file = uploaded
+
+# --- 이미지 처리 (탭 밖에서 session_state로 접근) ---
+if st.session_state.uploaded_file is not None:
     with open("temp_image.jpg", "wb") as f:
-        f.write(uploaded_file.getbuffer())
+        f.write(st.session_state.uploaded_file.getbuffer())
     
-    image = Image.open(uploaded_file)
+    image = Image.open(st.session_state.uploaded_file)
     st.image(image, caption="업로드된 이미지", use_container_width=True)
     
     if st.button("🚀 학습 자료 생성하기"):
@@ -32,20 +44,25 @@ if uploaded_file is not None:
             with st.expander("📝 추출된 텍스트 보기"):
                 st.write(extracted_text)
             
-            with st.spinner("🧠 DeepSeek이 학습 자료를 생성하는 중..."):
+            with st.spinner("🧠 DeepSeek이 학습 자료를 생성하는 중... (최대 30초)"):
                 study_material = generate_study_material(extracted_text)
             
             if "오류" in study_material:
                 st.error(f"학습 자료 생성 오류: {study_material}")
             else:
                 st.success("🎉 학습 자료 생성 완료!")
-                
-                # 🔥 여기가 핵심! 글자 크기 조절 + 배경 추가
-                st.markdown(f"""
-                <div style="font-size: {font_size}px; line-height: 2.0; background-color: #f9f9f9; padding: 20px; border-radius: 10px;">
-                {study_material}
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(study_material)
     
     if os.path.exists("temp_image.jpg"):
         os.remove("temp_image.jpg")
+
+# --- ✍️ 텍스트 직접 입력 (OCR이 어려울 때) ---
+with st.expander("✍️ 텍스트 직접 입력 (OCR이 어려울 때)"):
+    manual_text = st.text_area("중국어 텍스트를 직접 붙여넣으세요")
+    if st.button("직접 입력한 텍스트로 학습 자료 생성"):
+        if manual_text.strip():
+            with st.spinner("🧠 DeepSeek이 학습 자료를 생성하는 중..."):
+                study_material = generate_study_material(manual_text)
+                st.markdown(study_material)
+        else:
+            st.warning("텍스트를 입력해주세요.")
