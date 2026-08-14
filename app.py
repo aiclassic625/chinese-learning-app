@@ -3,21 +3,14 @@ from PIL import Image
 import os
 import base64
 from study_helper import generate_study_material
+from openai import OpenAI
 
 st.set_page_config(page_title="찰칵 중국어", page_icon="📚")
 st.title("📸 찰칵 중국어")
-st.write("책 페이지를 찍거나 갤러리에서 선택하면 중국어 학습 자료를 만들어드려요!")
+st.write("갤러리에서 책 페이지 사진을 선택하면 중국어 학습 자료를 만들어드려요!")
 
-# 탭 구성
-tab1, tab2 = st.tabs(["📁 파일 업로드", "📸 카메라 촬영"])
-
-uploaded_file = None
-
-with tab1:
-    uploaded_file = st.file_uploader("갤러리에서 사진을 선택하세요", type=["jpg", "jpeg", "png"])
-
-with tab2:
-    uploaded_file = st.camera_input("📸 책 페이지를 카메라로 찍어주세요")
+# 파일 업로드만 존재 (카메라 삭제!)
+uploaded_file = st.file_uploader("갤러리에서 사진을 선택하세요", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     # 이미지 미리보기
@@ -26,13 +19,11 @@ if uploaded_file is not None:
     
     if st.button("🚀 학습 자료 생성하기"):
         with st.spinner("DeepSeek이 이미지를 읽고 학습 자료를 생성하는 중... (최대 30초)"):
-            # DeepSeek에게 이미지 직접 전달 (OCR 포함)
             try:
                 # 이미지를 Base64로 인코딩
                 bytes_data = uploaded_file.getvalue()
                 base64_image = base64.b64encode(bytes_data).decode('utf-8')
                 
-                from openai import OpenAI
                 client = OpenAI(
                     api_key="sk-9d2da94df409489c8cfd3673b509665b",
                     base_url="https://api.deepseek.com/v1"
