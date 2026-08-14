@@ -8,36 +8,24 @@ st.set_page_config(page_title="찰칵 중국어", page_icon="📚")
 st.title("📸 찰칵 중국어")
 st.write("책 페이지를 찍거나 갤러리에서 선택하면 중국어 학습 자료를 만들어드려요!")
 
-# --- 세션 상태 초기화 ---
-if "uploaded_file" not in st.session_state:
-    st.session_state.uploaded_file = None
+# 파일 업로드 (카메라 촬영 포함)
+uploaded_file = st.file_uploader(
+    "📸 사진을 선택하거나, 카메라로 바로 찍어주세요",
+    type=["jpg", "jpeg", "png", "JPEG", "JPG", "PNG"]
+)
 
-# --- 탭 구성 ---
-tab1, tab2 = st.tabs(["📁 파일 업로드", "📸 카메라 촬영"])
-
-with tab1:
-    uploaded = st.file_uploader("갤러리에서 사진을 선택하세요", type=["jpg", "jpeg", "png", "JPEG", "JPG", "PNG"])
-    if uploaded is not None:
-        st.session_state.uploaded_file = uploaded
-
-with tab2:
-    uploaded = st.camera_input("📸 책 페이지를 카메라로 찍어주세요")
-    if uploaded is not None:
-        st.session_state.uploaded_file = uploaded
-
-# --- 이미지 처리 (탭 밖에서 session_state로 접근) ---
-if st.session_state.uploaded_file is not None:
+if uploaded_file is not None:
+    # 1. 임시 파일로 저장
     with open("temp_image.jpg", "wb") as f:
-        f.write(st.session_state.uploaded_file.getbuffer())
+        f.write(uploaded_file.getbuffer())
     
-    image = Image.open(st.session_state.uploaded_file)
-    max_size = (800, 800)
+    # 2. 이미지 크기 줄이기 (OCR 속도 향상)
+    image = Image.open(uploaded_file)
+    max_size = (1200, 1200)
     image.thumbnail(max_size, Image.Resampling.LANCZOS)
-    image.save("temp_image.jpg", "JPEG", quality=85)
-
-
     st.image(image, caption="업로드된 이미지", use_container_width=True)
     
+    # 3. 학습 자료 생성 버튼
     if st.button("🚀 학습 자료 생성하기"):
         with st.spinner("📖 이미지에서 텍스트를 추출하는 중..."):
             extracted_text = extract_text_from_image("temp_image.jpg")
@@ -58,5 +46,6 @@ if st.session_state.uploaded_file is not None:
                 st.success("🎉 학습 자료 생성 완료!")
                 st.markdown(study_material)
     
+    # 임시 파일 정리
     if os.path.exists("temp_image.jpg"):
         os.remove("temp_image.jpg")
