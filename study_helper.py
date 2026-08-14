@@ -1,6 +1,6 @@
 from openai import OpenAI
 
-# DeepSeek 클라이언트 초기화 (sk-9d2da94df409489c8cfd3673b509665b)
+# DeepSeek 클라이언트 초기화 (여러분의 API 키)
 client = OpenAI(
     api_key="sk-9d2da94df409489c8cfd3673b509665b",
     base_url="https://api.deepseek.com/v1"
@@ -49,7 +49,8 @@ def generate_study_material(chinese_text):
             messages=[
                 {"role": "system", "content": "당신은 중국어 교육 전문가입니다. 항상 친절하고 자세하게 가르쳐주세요."},
                 {"role": "user", "content": prompt}
-            ]
+            ],
+            reasoning_effort="low"   # 🔥 이 부분이 추가되었습니다! (생각 모드 최소화)
         )
         return response.choices[0].message.content
     except Exception as e:
