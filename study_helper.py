@@ -28,6 +28,8 @@ def generate_study_material(chinese_text):
   - [단어1] (병음): 뜻 (HSK 급수, 부수, 획수)
   - [단어2] (병음): 뜻 (HSK 급수, 부수, 획수)
 
+---
+
 **📌 문장 2**
 - **원문:** [중국어 문장]
 - **병음:** [병음]
@@ -38,7 +40,12 @@ def generate_study_material(chinese_text):
 
 ---
 
-❗ **중요:**
+❗ **추가 조건 (매우 중요!)**:
+- 만약 **원문이 번체(정체자)라면**, 위 형식에 **"📝 간체 변환:"** 항목을 **원문 바로 아래**에 추가해주세요.
+  - 예시: **📝 간체 변환:** [간체로 변환된 문장]
+- 원문이 이미 간체라면 이 항목은 생략합니다.
+
+❗ **기타 중요 규칙**:
 - 모든 문장에 대해 위 형식을 반복하세요.
 - 문장과 문장 사이에는 반드시 **빈 줄**을 넣어서 시각적으로 분리하세요.
 - 절대 표(테이블)를 사용하지 마세요.
@@ -51,7 +58,7 @@ def generate_study_material(chinese_text):
                 {"role": "system", "content": "당신은 중국어 교육 전문가입니다. 항상 깔끔하고 읽기 쉽게 가르쳐주세요."},
                 {"role": "user", "content": prompt}
             ],
-            reasoning_effort="low"  # 응답 속도 향상
+            reasoning_effort="low"
         )
         return response.choices[0].message.content
     except Exception as e:
