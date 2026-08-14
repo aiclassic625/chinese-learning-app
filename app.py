@@ -31,6 +31,11 @@ if st.session_state.uploaded_file is not None:
         f.write(st.session_state.uploaded_file.getbuffer())
     
     image = Image.open(st.session_state.uploaded_file)
+    max_size = (800, 800)
+    image.thumbnail(max_size, Image.Resampling.LANCZOS)
+    image.save("temp_image.jpg", "JPEG", quality=85)
+
+
     st.image(image, caption="업로드된 이미지", use_container_width=True)
     
     if st.button("🚀 학습 자료 생성하기"):
