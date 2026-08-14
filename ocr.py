@@ -1,29 +1,23 @@
-import easyocr
-from PIL import Image
-import numpy as np
-
-# EasyOCR 리더 초기화 (중국어 간체 + 영어)
-reader = easyocr.Reader(['ch_sim', 'en'], gpu=False)
+import pytesseract
+from PIL import Image, ImageEnhance, ImageFilter
 
 def extract_text_from_image(image_path):
-    """
-    EasyOCR을 사용하여 이미지에서 중국어(간체) 텍스트를 추출합니다.
-    """
     try:
-        # 이미지 열기
         image = Image.open(image_path)
-        # numpy 배열로 변환 (EasyOCR이 필요로 하는 형식)
-        image_np = np.array(image)
         
-        # EasyOCR 실행
-        result = reader.readtext(image_np, detail=0, paragraph=False)
+        # --- 전처리 강화 ---
+        image = image.convert('L')  # 흑백
+        enhancer = ImageEnhance.Contrast(image)
+        image = enhancer.enhance(3.0)  # 대비 3배
+        image = image.filter(ImageFilter.SHARPEN)
+        image = image.resize((image.width * 2, image.height * 2), Image.LANCZOS)
         
-        # 결과를 하나의 텍스트로 합치기
-        if not result:
-            return "텍스트를 찾을 수 없습니다. (사진이 흐리거나 중국어가 없을 수 있어요)"
+        # --- Tesseract 실행 (중국어 간체만) ---
+        custom_config = r'--oem 3 --psm 6 -l chi_sim'
+        text = pytesseract.image_to_string(image, config=custom_config)
         
-        text = '\n'.join(result)
+        if not text.strip():
+            return "텍스트를 찾을 수 없습니다."
         return text.strip()
-    
     except Exception as e:
         return f"OCR 오류: {e}"
