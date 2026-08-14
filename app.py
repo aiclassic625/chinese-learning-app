@@ -2,19 +2,35 @@ import streamlit as st
 from PIL import Image
 import os
 from ocr import extract_text_from_image
-from study_helper import generate_study_material, generate_study_material_stream  # ← 추가!
+from study_helper import generate_study_material  # ✅ 스트리밍 함수 제거!
 
 st.set_page_config(page_title="찰칵 중국어", page_icon="📚")
 st.title("📸 찰칵 중국어")
-st.write("책 페이지 사진을 업로드하면 중국어 학습 자료를 만들어드려요!")
+st.write("책 페이지를 찍거나 갤러리에서 선택하면 중국어 학습 자료를 만들어드려요!")
 
-uploaded_file = st.file_uploader("책 페이지 사진을 선택하세요", type=["jpg", "jpeg", "png", "JPEG", "JPG", "PNG"])
+# --- 세션 상태 초기화 ---
+if "uploaded_file" not in st.session_state:
+    st.session_state.uploaded_file = None
 
-if uploaded_file is not None:
+# --- 탭 구성 ---
+tab1, tab2 = st.tabs(["📁 파일 업로드", "📸 카메라 촬영"])
+
+with tab1:
+    uploaded = st.file_uploader("갤러리에서 사진을 선택하세요", type=["jpg", "jpeg", "png", "JPEG", "JPG", "PNG"])
+    if uploaded is not None:
+        st.session_state.uploaded_file = uploaded
+
+with tab2:
+    uploaded = st.camera_input("📸 책 페이지를 카메라로 찍어주세요")
+    if uploaded is not None:
+        st.session_state.uploaded_file = uploaded
+
+# --- 이미지 처리 ---
+if st.session_state.uploaded_file is not None:
     with open("temp_image.jpg", "wb") as f:
-        f.write(uploaded_file.getbuffer())
+        f.write(st.session_state.uploaded_file.getbuffer())
     
-    image = Image.open(uploaded_file)
+    image = Image.open(st.session_state.uploaded_file)
     st.image(image, caption="업로드된 이미지", use_container_width=True)
     
     if st.button("🚀 학습 자료 생성하기"):
@@ -28,10 +44,14 @@ if uploaded_file is not None:
             with st.expander("📝 추출된 텍스트 보기"):
                 st.write(extracted_text)
             
-            # 🔥 스트리밍 방식으로 출력 (글자가 차차 나타남)
             with st.spinner("🧠 DeepSeek이 학습 자료를 생성하는 중... (최대 30초)"):
-                response_stream = generate_study_material_stream(extracted_text)
-                st.write_stream(response_stream)
+                study_material = generate_study_material(extracted_text)
+            
+            if "오류" in study_material:
+                st.error(f"학습 자료 생성 오류: {study_material}")
+            else:
+                st.success("🎉 학습 자료 생성 완료!")
+                st.markdown(study_material)  # ✅ 스트리밍 대신 일반 출력
     
     if os.path.exists("temp_image.jpg"):
         os.remove("temp_image.jpg")
