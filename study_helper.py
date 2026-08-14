@@ -1,5 +1,6 @@
 from openai import OpenAI
 
+# DeepSeek 클라이언트 초기화
 client = OpenAI(
     api_key="sk-9d2da94df409489c8cfd3673b509665b",
     base_url="https://api.deepseek.com/v1"
@@ -8,36 +9,26 @@ client = OpenAI(
 def generate_study_material(chinese_text):
     """
     중국어 텍스트를 받아서 문장별로 학습 자료를 생성하는 함수
-    - 번체자가 포함된 문장만 간체 변환 줄을 추가로 표시
-    - 이미 간체인 문장은 변환 줄 생략
     """
-    # 🔥 UTF-8 인코딩 보정 (이 한 줄이 'ascii' 오류를 완전히 해결합니다!)
+    # UTF-8 인코딩 보정
     if isinstance(chinese_text, str):
         chinese_text = chinese_text.encode('utf-8', errors='ignore').decode('utf-8')
-    
+
     prompt = f"""
-다음은 중국어 텍스트입니다. (번체자와 간체자가 혼용되어 있어도 됩니다)
+다음은 중국어 텍스트입니다. 한국어 학습자를 위한 친절한 중국어 학습 자료를 만들어주세요.
 
 [텍스트]
 {chinese_text}
 
-아래 형식으로 **모든 문장을** 번호를 붙여서 출력해주세요.
-
-**중요 지침:**
-- **✍️ 간체 변환:** 줄은 해당 문장에 **번체자가 포함되어 있을 때만** 출력하세요.
-- 이미 간체자로만 구성된 문장이라면 **이 줄을 완전히 생략**하세요.
+반드시 다음 형식으로 출력해주세요:
 
 ---
 
-**📌 문장 [번호]:**
-
-**🔤 원문:** [원문 그대로 출력]
-**✍️ 간체 변환:** [해당 문장에 번체자가 있을 경우에만 출력]
-**🔊 병음:** [병음]
-**🇰🇷 해석:** [한국어 뜻]
+**📌 문장 1:** [원문 중국어 문장]  
+**🔊 병음:** [병음]  
+**🇰🇷 해석:** [한국어 뜻]  
 **📖 단어 분석:**  
 - [단어1]: [뜻] (병음: [병음], HSK 급수: [급수], 부수: [부수], 획수: [획수])  
-- [단어2]: [뜻] (병음: [병음], HSK 급수: [급수], 부수: [부수], 획수: [획수])  
 
 ---
 
@@ -45,11 +36,12 @@ def generate_study_material(chinese_text):
 
 형식은 깔끔하게 마크다운을 사용해주세요.
 """
+
     try:
         response = client.chat.completions.create(
             model="deepseek-v4-flash",
             messages=[
-                {"role": "system", "content": "당신은 중국어 교육 전문가입니다. 번체자와 간체자에 모두 능숙하며, 한국어 학습자를 위해 친절하고 자세하게 가르쳐줍니다."},
+                {"role": "system", "content": "당신은 중국어 교육 전문가입니다. 항상 친절하고 자세하게 가르쳐주세요."},
                 {"role": "user", "content": prompt}
             ]
         )
