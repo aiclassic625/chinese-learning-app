@@ -47,7 +47,15 @@ if uploaded_file is not None:
     if os.path.exists("temp_image.jpg"):
         os.remove("temp_image.jpg")
 
-# ===== 🔥 추가된 부분 3: 저장된 결과 표시 (파일이 없어도 유지!) =====
 if st.session_state.study_result:
     st.markdown("---")
     st.markdown(st.session_state.study_result)
+    
+    # 다운로드 버튼 추가
+    st.download_button(
+        label="📥 학습 자료 다운로드 (텍스트 파일)",
+        data=st.session_state.study_result,
+        file_name="chinese_study_material.txt",
+        mime="text/plain",
+        key="download_study"
+    )
