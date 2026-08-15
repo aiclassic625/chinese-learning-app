@@ -50,7 +50,7 @@ if st.session_state.logged_in:
     if st.sidebar.button("로그아웃"):
         st.session_state.user = None
         st.session_state.logged_in = False
-        st.rerun()
+        
 else:
     login_signup()
     st.stop()  # 로그인할 때까지 앱 실행 중단
