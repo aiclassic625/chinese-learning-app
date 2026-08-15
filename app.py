@@ -8,7 +8,11 @@ st.set_page_config(page_title="찰칵 중국어", page_icon="📚")
 st.title("📸 찰칵 중국어")
 st.write("책 페이지 사진을 업로드하면 중국어 학습 자료를 만들어드려요!")
 
-# 파일 업로드만!
+# ===== 🔥 추가된 부분 1: session_state 초기화 (새로고침해도 데이터 유지) =====
+if "study_result" not in st.session_state:
+    st.session_state.study_result = None
+
+# ===== 파일 업로드만! (기존과 동일) =====
 uploaded_file = st.file_uploader("책 페이지 사진을 선택하세요", type=["jpg", "jpeg", "png", "JPEG", "JPG", "PNG"])
 
 if uploaded_file is not None:
@@ -36,7 +40,14 @@ if uploaded_file is not None:
                 st.error(f"학습 자료 생성 오류: {study_material}")
             else:
                 st.success("🎉 학습 자료 생성 완료!")
+                # ===== 🔥 추가된 부분 2: 결과를 session_state에 저장 =====
+                st.session_state.study_result = study_material
                 st.markdown(study_material)
     
     if os.path.exists("temp_image.jpg"):
         os.remove("temp_image.jpg")
+
+# ===== 🔥 추가된 부분 3: 저장된 결과 표시 (파일이 없어도 유지!) =====
+if st.session_state.study_result:
+    st.markdown("---")
+    st.markdown(st.session_state.study_result)
