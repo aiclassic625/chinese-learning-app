@@ -1,10 +1,10 @@
 import streamlit as st
 from PIL import Image
 import os
+import datetime
 from ocr import extract_text_from_image
 from study_helper import generate_study_material
 from supabase import create_client, Client
-import datetime
 
 # ===== Supabase 연결 설정 =====
 supabase_url = st.secrets["SUPABASE_URL"]
@@ -13,6 +13,7 @@ supabase: Client = create_client(supabase_url, supabase_key)
 
 st.set_page_config(page_title="찰칵 중국어", page_icon="📚")
 st.title("📸 찰칵 중국어")
+st.write("책 페이지 사진을 업로드하면 중국어 학습 자료를 만들어드려요!")
 
 # ===== session_state 초기화 =====
 if "study_result" not in st.session_state:
@@ -22,7 +23,7 @@ if "user" not in st.session_state:
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-# ===== 로그인/회원가입 UI =====
+# ===== 로그인/회원가입 UI (사이드바) =====
 def login_signup():
     st.sidebar.title("🔐 로그인 / 회원가입")
     email = st.sidebar.text_input("이메일")
@@ -52,11 +53,9 @@ if st.session_state.logged_in:
         st.rerun()
 else:
     login_signup()
-    st.stop()  # 로그인할 때까진 앱 실행 중단
+    st.stop()  # 로그인할 때까지 앱 실행 중단
 
-# ===== 메인 앱 =====
-st.write("책 페이지 사진을 업로드하면 중국어 학습 자료를 만들어드려요!")
-
+# ===== 파일 업로드 (기존과 동일) =====
 uploaded_file = st.file_uploader("책 페이지 사진을 선택하세요", type=["jpg", "jpeg", "png", "JPEG", "JPG", "PNG"])
 
 if uploaded_file is not None:
@@ -86,7 +85,7 @@ if uploaded_file is not None:
                 st.success("🎉 학습 자료 생성 완료!")
                 st.session_state.study_result = study_material
                 st.markdown(study_material)
-                
+
                 # ===== 🔥 Supabase에 저장 =====
                 try:
                     data = {
@@ -98,12 +97,12 @@ if uploaded_file is not None:
                     supabase.table("study_records").insert(data).execute()
                     st.info("💾 학습 자료가 클라우드에 저장되었습니다!")
                 except Exception as e:
-                    st.warning(f"⚠️ 저장 실패: {e}")
+                    st.warning(f"⚠️ 저장 실패 (앱은 정상 작동 중): {e}")
     
     if os.path.exists("temp_image.jpg"):
         os.remove("temp_image.jpg")
 
-# ===== 저장된 결과 표시 =====
+# ===== 저장된 결과 표시 및 다운로드 버튼 =====
 if st.session_state.study_result:
     st.markdown("---")
     st.markdown(st.session_state.study_result)
