@@ -40,7 +40,7 @@ def login_signup():
                 st.session_state.user = response.user
                 st.session_state.logged_in = True
                 st.sidebar.success(f"✅ {email} 님 환영합니다!")
-                st.rerun()
+                #st.rerun() #
         except Exception as e:
             st.sidebar.error(f"오류: {e}")
 
@@ -50,7 +50,7 @@ if st.session_state.logged_in:
     if st.sidebar.button("로그아웃"):
         st.session_state.user = None
         st.session_state.logged_in = False
-        
+        # st.rerun()  #
 else:
     login_signup()
     st.stop()  # 로그인할 때까지 앱 실행 중단
