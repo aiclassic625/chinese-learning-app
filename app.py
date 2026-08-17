@@ -34,7 +34,7 @@ def login_signup():
         try:
             if mode == "회원가입":
                 response = supabase.auth.sign_up({"email": email, "password": password})
-                st.sidebar.success("✅ 회원가입 완료! 로그인해주세요.")
+                st.sidebar.success("✅ 회원가입 완료! 이메일로 발송된 인증 링크를 클릭한 후 로그인해주세요.")
             else:
                 response = supabase.auth.sign_in_with_password({"email": email, "password": password})
                 st.session_state.user = response.user
