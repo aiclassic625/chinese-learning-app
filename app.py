@@ -51,6 +51,40 @@ if st.session_state.logged_in:
         st.session_state.user = None
         st.session_state.logged_in = False
         # st.rerun()  # ← 주석 처리됨
+
+    # ===== 🆕 여기서부터 '내 학습 기록 보기' 코드를 추가하세요! =====
+    st.sidebar.markdown("---")  # 구분선
+    if st.sidebar.button("📚 내 학습 기록 보기"):
+        with st.spinner("📖 저장된 학습 자료를 불러오는 중..."):
+            try:
+                response = supabase.table("study_records")\
+                    .select("*")\
+                    .eq("user_id", st.session_state.user.id)\
+                    .order("created_at", desc=True)\
+                    .execute()
+                
+                records = response.data
+                
+                if not records:
+                    st.sidebar.info("📭 아직 저장된 학습 자료가 없어요.")
+                else:
+                    st.sidebar.success(f"📚 총 {len(records)}개의 학습 자료가 있어요!")
+                    
+                    # 메인 화면에 기록 표시
+                    st.subheader("📚 나의 학습 기록")
+                    for idx, record in enumerate(records):
+                        created_date = record['created_at'][:10] if record['created_at'] else "날짜 없음"
+                        with st.expander(f"📖 학습 기록 #{idx+1} ({created_date})"):
+                            st.markdown(record['study_material'])
+                            st.download_button(
+                                label="📥 이 기록 다시 다운로드",
+                                data=record['study_material'],
+                                file_name=f"study_record_{idx+1}.txt",
+                                key=f"history_download_{idx}"
+                            )
+            except Exception as e:
+                st.sidebar.error(f"기록 불러오기 실패: {e}")
+
 else:
     login_signup()
     st.stop()
