@@ -1,8 +1,8 @@
 from openai import OpenAI
 
-# DeepSeek 클라이언트 초기화
+# DeepSeek 클라이언트 초기화 (본인의 API 키로 교체)
 client = OpenAI(
-    api_key="sk-9d2da94df409489c8cfd3673b509665b",  # ← 여기만 교체!
+    api_key="여기에_본인의_DeepSeek_API_키를_넣으세요",
     base_url="https://api.deepseek.com/v1"
 )
 
@@ -31,7 +31,7 @@ def generate_study_material(chinese_text):
 - **원문:** [중국어 문장]
 - **병음:** [전체 병음]
 - **해석:** [한국어 뜻]
-- **📝 간체 변환:** (원문이 번체일 경우에만 추가, 간체면 생략)
+- **📝 간체 변환:** (원문이 번체일 경우에만 추가)
 
 - **HSK 4급 이상 단어 분석 (한 글자씩 뜻 풀이):**
   - [단어] (병음): 뜻
