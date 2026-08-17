@@ -119,7 +119,8 @@ if uploaded_file is not None:
                     supabase.table("study_records").insert(data).execute()
                     st.info("💾 학습 자료가 클라우드에 저장되었습니다!")
                 except Exception as e:
-                    st.warning(f"⚠️ 저장 실패 (앱은 정상 작동 중): {e}")
+    st.error(f"❌ 저장 실패! 이유: {e}")
+    st.write(f"디버깅: user_id = {st.session_state.user.id}, 타입 = {type(st.session_state.user.id)}")
     
     if os.path.exists("temp_image.jpg"):
         os.remove("temp_image.jpg")
