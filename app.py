@@ -103,7 +103,7 @@ if uploaded_file is not None:
             with st.spinner("🧠 DeepSeek이 학습 자료를 생성하는 중... (최대 30초)"):
                 study_material = generate_study_material(extracted_text)
             
-            if "오류" in study_material:
+           if study_material.startswith("오류 발생") or study_material.startswith("텍스트가 너무 짧습니다"):
                 st.error(f"학습 자료 생성 오류: {study_material}")
             else:
                 st.success("🎉 학습 자료 생성 완료!")
