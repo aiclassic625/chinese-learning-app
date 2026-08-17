@@ -111,6 +111,8 @@ if uploaded_file is not None:
                 st.markdown(study_material)
 
                 # ===== Supabase에 저장 =====
+                st.write("🔍 저장 시도 중...")
+                
                 try:
                     data = {
                         "user_id": st.session_state.user.id,
