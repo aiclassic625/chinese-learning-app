@@ -48,7 +48,7 @@ if st.session_state.logged_in:
     st.sidebar.write(f"👋 {st.session_state.user.email}")
 
     # 디버깅용 ID 표시
-    st.write(f"🆔 현재 로그인한 사용자 ID: {st.session_state.user.id}")
+    # st.write(f"ID: {st.session_state.user.id}")  # 주석 처리
     
     # ===== 내 학습 기록 보기 =====
     st.sidebar.subheader("📚 내 학습 기록")
