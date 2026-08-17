@@ -40,15 +40,17 @@ def login_signup():
                 st.session_state.user = response.user
                 st.session_state.logged_in = True
                 st.sidebar.success(f"✅ {email} 님 환영합니다!")
-                #st.rerun() #
         except Exception as e:
             st.sidebar.error(f"오류: {e}")
 
 # ===== 로그인 상태 확인 =====
 if st.session_state.logged_in:
     st.sidebar.write(f"👋 {st.session_state.user.email}")
+
+    # 디버깅용 ID 표시
+    st.write(f"🆔 현재 로그인한 사용자 ID: {st.session_state.user.id}")
     
-    # ===== 🆕 내 학습 기록 보기 (여기에 추가!) =====
+    # ===== 내 학습 기록 보기 =====
     st.sidebar.subheader("📚 내 학습 기록")
     if st.sidebar.button("📖 저장된 자료 보기"):
         try:
@@ -67,17 +69,17 @@ if st.session_state.logged_in:
                         st.markdown(record['study_material'])
                         st.caption(f"📅 저장일: {record['created_at']}")
         except Exception as e:
-            st.error(f"불러오기 실패: {e}")
+            st.error(f"❌ 저장 불러오기 실패! 이유: {e}")
+            st.write(f"디버깅: user_id = {st.session_state.user.id}, 타입 = {type(st.session_state.user.id)}")
     
     if st.sidebar.button("로그아웃"):
         st.session_state.user = None
         st.session_state.logged_in = False
-        # st.rerun()  #
 else:
     login_signup()
-    st.stop()  # 로그인할 때까지 앱 실행 중단
+    st.stop()
 
-# ===== 파일 업로드 (기존과 동일) =====
+# ===== 파일 업로드 =====
 uploaded_file = st.file_uploader("책 페이지 사진을 선택하세요", type=["jpg", "jpeg", "png", "JPEG", "JPG", "PNG"])
 
 if uploaded_file is not None:
@@ -108,7 +110,7 @@ if uploaded_file is not None:
                 st.session_state.study_result = study_material
                 st.markdown(study_material)
 
-                # ===== 🔥 Supabase에 저장 =====
+                # ===== Supabase에 저장 =====
                 try:
                     data = {
                         "user_id": st.session_state.user.id,
@@ -119,8 +121,8 @@ if uploaded_file is not None:
                     supabase.table("study_records").insert(data).execute()
                     st.info("💾 학습 자료가 클라우드에 저장되었습니다!")
                 except Exception as e:
-    st.error(f"❌ 저장 실패! 이유: {e}")
-    st.write(f"디버깅: user_id = {st.session_state.user.id}, 타입 = {type(st.session_state.user.id)}")
+                    st.error(f"❌ 저장 실패! 이유: {e}")
+                    st.write(f"디버깅: user_id = {st.session_state.user.id}, 타입 = {type(st.session_state.user.id)}")
     
     if os.path.exists("temp_image.jpg"):
         os.remove("temp_image.jpg")
